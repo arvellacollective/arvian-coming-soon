@@ -1,65 +1,102 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+
+export default function Page() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  const handleSubmit = async () => {
+    if (!email) return;
+
+    setStatus("loading");
+
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setStatus("success");
+        setEmail("");
+
+        setTimeout(() => setStatus("idle"), 3000);
+      } else {
+        setStatus("error");
+      }
+    } catch (e) {
+      setStatus("error");
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <main className="relative min-h-screen bg-black text-white overflow-hidden flex items-center justify-center px-6">
+      {/* BACKGROUND */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-[#050505] to-black" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-white/20 blur-[180px] opacity-50" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_60%)]" />
+      <div className="absolute bottom-[-250px] left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-white/20 blur-[220px] opacity-30" />
+      <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+
+      {/* CONTENT */}
+      <div className="relative z-10 text-center max-w-3xl space-y-10">
+
+        <p className="text-xs tracking-[0.5em] text-white/40 uppercase">
+          Arvian Studio
+        </p>
+
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-light leading-[1.05] tracking-[-0.03em] drop-shadow-[0_0_25px_rgba(255,255,255,0.15)]">
+          Personal scenes,
+          <br />
+          <span className="italic text-white/80">rebuilt with precision.</span>
+        </h1>
+
+        <p className="text-white/50 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
+          A controlled system that integrates real human presence into cinematic environments.
+          Built for memory, identity, and atmosphere.
+        </p>
+
+        <p className="text-white/30 text-xs tracking-[0.4em] uppercase">
+          Coming Soon
+        </p>
+
+        {/* INPUT AREA */}
+        <div className="flex flex-col items-center gap-3 mt-4">
+          <div className="flex items-center justify-center gap-3">
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="bg-white/5 border border-white/10 px-6 py-3 rounded-full text-sm outline-none w-[240px] md:w-[300px] backdrop-blur-md placeholder:text-white/30 focus:border-white/30 transition"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+            <button
+              onClick={handleSubmit}
+              disabled={status === "loading"}
+              className="px-6 py-3 rounded-full bg-white text-black text-sm font-medium transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.25)] hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50"
+            >
+              {status === "loading"
+                ? "Sending..."
+                : status === "success"
+                ? "✓ Added"
+                : "Notify Me"}
+            </button>
+          </div>
+
+          {/* FEEDBACK */}
+          <div className="h-4 text-xs text-white/40">
+            {status === "success" && "You’re on the list."}
+            {status === "error" && "Something went wrong."}
+          </div>
         </div>
-      </main>
-    </div>
+
+      </div>
+    </main>
   );
 }
