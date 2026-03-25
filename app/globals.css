@@ -1,26 +1,54 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: #000;
+  color: white;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 🔥 CENTER LOCK + DIRECTIONAL FIELD */
+.arvian-light {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  background:
+    /* 🔹 MERKEZ (ANA IŞIK) */
+    radial-gradient(
+      circle at 50% 50%,
+      rgba(255,255,255,0.09),
+      transparent 40%
+    ),
+
+    /* 🔥 YÖNSEL IŞIK (DAHA GENİŞ + SOFT) */
+    radial-gradient(
+      circle at var(--mx, 50%) var(--my, 50%),
+      rgba(255,255,255,0.06),
+      transparent 60%
+    );
+}
+
+/* 🔥 DERİNLİK */
+.arvian-light::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at 50% 70%,
+      rgba(255,255,255,0.03),
+      transparent 75%
+    );
+}
+
+/* 🔥 GRAIN */
+.arvian-noise {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
 }

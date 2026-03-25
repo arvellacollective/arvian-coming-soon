@@ -1,10 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Page() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  /* 🔥 MOUSE → SADECE YÖNLENDİRME */
+  useEffect(() => {
+    let currentX = 50;
+    let currentY = 50;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const mouseX = (e.clientX / window.innerWidth) * 100;
+      const mouseY = (e.clientY / window.innerHeight) * 100;
+
+      // 🔥 inertia (çok kritik)
+      currentX += (mouseX - currentX) * 0.06;
+      currentY += (mouseY - currentY) * 0.06;
+
+      document.documentElement.style.setProperty("--mx", `${currentX}%`);
+      document.documentElement.style.setProperty("--my", `${currentY}%`);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   const handleSubmit = async () => {
     if (!email || !email.includes("@")) {
@@ -17,9 +38,7 @@ export default function Page() {
     try {
       const res = await fetch("/api/subscribe", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
@@ -32,25 +51,26 @@ export default function Page() {
       } else {
         setStatus("error");
       }
-    } catch (e) {
+    } catch {
       setStatus("error");
     }
   };
 
   return (
-    <main className="relative min-h-screen bg-black text-white overflow-hidden flex items-center justify-center px-6">
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-[#050505] to-black" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-white/20 blur-[180px] opacity-50" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_60%)]" />
-      <div className="absolute bottom-[-250px] left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-white/20 blur-[220px] opacity-30" />
-      <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+    <main className="relative min-h-screen flex items-center justify-center px-6 text-white overflow-hidden">
 
-      <div className="relative z-10 text-center max-w-3xl space-y-10">
+      {/* 🔥 LIGHT SYSTEM */}
+      <div className="arvian-light" />
+      <div className="arvian-depth" />
+      <div className="arvian-noise" />
+
+      <div className="text-center max-w-3xl space-y-10 relative z-10">
+
         <p className="text-xs tracking-[0.5em] text-white/40 uppercase">
           Arvian Studio
         </p>
 
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-light leading-[1.05] tracking-[-0.03em] drop-shadow-[0_0_25px_rgba(255,255,255,0.15)]">
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-light leading-[1.05] tracking-[-0.03em]">
           Personal scenes,
           <br />
           <span className="italic text-white/80">rebuilt with precision.</span>
@@ -67,17 +87,18 @@ export default function Page() {
 
         <div className="flex flex-col items-center gap-3 mt-4">
           <div className="flex items-center justify-center gap-3">
+
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="bg-white/5 border border-white/10 px-6 py-3 rounded-full text-sm outline-none w-[240px] md:w-[300px]"
+              className="bg-white/5 border border-white/10 px-6 py-3 rounded-full text-sm outline-none w-[240px] md:w-[300px] backdrop-blur-md transition focus:border-white/20"
             />
 
             <button
               onClick={handleSubmit}
               disabled={status === "loading"}
-              className="px-6 py-3 rounded-full bg-white text-black text-sm font-medium"
+              className="px-6 py-3 rounded-full bg-white text-black text-sm font-medium transition hover:opacity-90 active:scale-[0.97]"
             >
               {status === "loading"
                 ? "Sending..."
@@ -85,6 +106,7 @@ export default function Page() {
                 ? "✓ Added"
                 : "Notify Me"}
             </button>
+
           </div>
 
           <div className="h-4 text-xs text-white/40">
@@ -92,6 +114,7 @@ export default function Page() {
             {status === "error" && "Invalid email or error."}
           </div>
         </div>
+
       </div>
     </main>
   );
