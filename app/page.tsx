@@ -7,7 +7,10 @@ export default function Page() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   const handleSubmit = async () => {
-    if (!email) return;
+    if (!email || !email.includes("@")) {
+      setStatus("error");
+      return;
+    }
 
     setStatus("loading");
 
@@ -25,7 +28,6 @@ export default function Page() {
       if (data.success) {
         setStatus("success");
         setEmail("");
-
         setTimeout(() => setStatus("idle"), 3000);
       } else {
         setStatus("error");
@@ -37,16 +39,13 @@ export default function Page() {
 
   return (
     <main className="relative min-h-screen bg-black text-white overflow-hidden flex items-center justify-center px-6">
-      {/* BACKGROUND */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-[#050505] to-black" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-white/20 blur-[180px] opacity-50" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_60%)]" />
       <div className="absolute bottom-[-250px] left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-white/20 blur-[220px] opacity-30" />
       <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
-      {/* CONTENT */}
       <div className="relative z-10 text-center max-w-3xl space-y-10">
-
         <p className="text-xs tracking-[0.5em] text-white/40 uppercase">
           Arvian Studio
         </p>
@@ -66,20 +65,19 @@ export default function Page() {
           Coming Soon
         </p>
 
-        {/* INPUT AREA */}
         <div className="flex flex-col items-center gap-3 mt-4">
           <div className="flex items-center justify-center gap-3">
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="bg-white/5 border border-white/10 px-6 py-3 rounded-full text-sm outline-none w-[240px] md:w-[300px] backdrop-blur-md placeholder:text-white/30 focus:border-white/30 transition"
+              className="bg-white/5 border border-white/10 px-6 py-3 rounded-full text-sm outline-none w-[240px] md:w-[300px]"
             />
 
             <button
               onClick={handleSubmit}
               disabled={status === "loading"}
-              className="px-6 py-3 rounded-full bg-white text-black text-sm font-medium transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.25)] hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50"
+              className="px-6 py-3 rounded-full bg-white text-black text-sm font-medium"
             >
               {status === "loading"
                 ? "Sending..."
@@ -89,13 +87,11 @@ export default function Page() {
             </button>
           </div>
 
-          {/* FEEDBACK */}
           <div className="h-4 text-xs text-white/40">
             {status === "success" && "You’re on the list."}
-            {status === "error" && "Something went wrong."}
+            {status === "error" && "Invalid email or error."}
           </div>
         </div>
-
       </div>
     </main>
   );
