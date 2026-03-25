@@ -8,26 +8,33 @@ export async function POST(req: Request) {
     const body = await req.json();
     const email = body.email;
 
+    // ✅ Email validation
     if (!email || !email.includes("@")) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
     }
 
-    // 🔴 IMPORTANT: SEND TO YOURSELF FIRST
-    const adminRes = await resend.emails.send({
-      from: "Arvian <onboarding@resend.dev>",
+    // ✅ 1. ADMIN MAIL (SANA GELEN)
+    await resend.emails.send({
+      from: "Arvian <no-reply@arvianstudio.com>",
       to: "arvianstudio@gmail.com",
       subject: "New Subscriber",
       html: `<p>New email: ${email}</p>`,
     });
 
-    if (adminRes.error) {
-      console.error("ADMIN MAIL ERROR:", adminRes.error);
-      return NextResponse.json({ error: "Mail failed" }, { status: 500 });
-    }
-
-    // 🔴 USER MAIL (SAFE VERSION)
-    // Sandbox'ta çalışması için geçici olarak kapatıyoruz
-    // çünkü resend sandbox dış maili bloklayabilir
+    // ✅ 2. USER MAIL (KULLANICIYA GİDEN)
+    await resend.emails.send({
+      from: "Arvian <no-reply@arvianstudio.com>",
+      to: email,
+      subject: "You're in.",
+      html: `
+        <div style="font-family: Arial, sans-serif;">
+          <h2>You're on the list.</h2>
+          <p>We’ll notify you when we launch.</p>
+          <br/>
+          <p style="opacity:0.6;">Arvian Studio</p>
+        </div>
+      `,
+    });
 
     return NextResponse.json({ success: true });
 
