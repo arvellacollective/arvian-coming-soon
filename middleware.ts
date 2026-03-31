@@ -3,32 +3,27 @@ import type { NextRequest } from 'next/server'
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
-  const isProductionRoute = pathname.startsWith('/production')
-  const isLoginRoute = pathname === '/production/login'
+  const authCookie = req.cookies.get('arvian-muhur-auth')
 
-  // 1. API yollarına ve Login sayfasına dokunma (sonsuz döngüyü önler)
-  if (pathname.startsWith('/api') || isLoginRoute) {
+  // 1. API yollarına ve Login sayfasına her zaman izin ver (Döngüyü önler)
+  if (pathname.startsWith('/api') || pathname === '/production/login') {
     return NextResponse.next()
   }
 
-  if (isProductionRoute) {
-    // 2. Mührü (Cookie) kontrol et
-    const authCookie = req.cookies.get('arvian-muhur-auth')
-
-    // Mühür varsa ve içeriği doğruysa geçişe izin ver
-    if (authCookie && authCookie.value === 'açıldı') {
+  // 2. Sadece /production yollarını koru
+  if (pathname.startsWith('/production')) {
+    // Mühür (Cookie) varsa içeri al
+    if (authCookie) {
       return NextResponse.next()
     }
 
-    // 3. Mühür yoksa, popup açmadan direkt kendi login sayfana yönlendir
-    const loginUrl = new URL('/production/login', req.url)
-    return NextResponse.redirect(loginUrl)
+    // Mühür yoksa popup açtırmadan direkt login sayfasına fırlat
+    return NextResponse.redirect(new URL('/production/login', req.url))
   }
 
   return NextResponse.next()
 }
 
 export const config = {
-  // Sadece production altındaki sayfaları izle
   matcher: ['/production/:path*'],
 }
