@@ -1,17 +1,20 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Mühürlü Operasyon: Arvian Core /production Ünitesi Basic Auth Mührü
 export function middleware(req: NextRequest) {
-  const isProductionRoute = req.nextUrl.pathname.startsWith('/production')
+  const { pathname } = req.nextUrl
+  const isProductionRoute = pathname.startsWith('/production')
+  const isLoginRoute = pathname === '/production/login'
 
-  // API yollarına giden isteklerin middleware'e takılmasını önle (tarayıcı gerçi basic auth saklayınca gönderir ama temiz olsun)
-  if (req.nextUrl.pathname.startsWith('/api')) {
+  // 1. API yollarına ve kendi Login sayfana dokunma (sonsuz döngüyü önler)
+  if (pathname.startsWith('/api') || isLoginRoute) {
     return NextResponse.next()
   }
 
   if (isProductionRoute) {
+    // Mevcut header'ı kontrol et (tarayıcı bazen hafızasındaki şifreyi gönderir)
     const basicAuth = req.headers.get('authorization')
+    
     if (basicAuth) {
       const authValue = basicAuth.split(' ')[1]
       try {
@@ -20,22 +23,20 @@ export function middleware(req: NextRequest) {
             return NextResponse.next()
           }
       } catch (e) {
-         // Yanlış formatta header vs loglanabilir.
+         // Hatalı format gelirse görmezden gel
       }
     }
     
-    // Başarısız veya ilk kez girildi. Authentication popup tetikle:
-    return new NextResponse('Arvian Core Mühürlü', {
-      status: 401,
-      headers: {
-        'WWW-Authenticate': 'Basic realm="Arvian Core Secure Area"',
-      },
-    })
+    // 2. KRİTİK DEĞİŞİKLİK: Popup tetikleyen 401 status ve WWW-Authenticate header'ını sildik.
+    // Kullanıcı yetkisizse popup açtırmak yerine doğrudan gömülü formun olduğu sayfaya yönlendiriyoruz.
+    const loginUrl = new URL('/production/login', req.url)
+    return NextResponse.redirect(loginUrl)
   }
 
   return NextResponse.next()
 }
 
 export const config = {
+  // Sadece production altındaki tüm yolları izle
   matcher: ['/production/:path*'],
 }
