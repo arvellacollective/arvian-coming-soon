@@ -1,121 +1,82 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
 
-export default function Page() {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-
-  /* 🔥 MOUSE → SADECE YÖNLENDİRME */
-  useEffect(() => {
-    let currentX = 50;
-    let currentY = 50;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const mouseX = (e.clientX / window.innerWidth) * 100;
-      const mouseY = (e.clientY / window.innerHeight) * 100;
-
-      // 🔥 inertia (çok kritik)
-      currentX += (mouseX - currentX) * 0.06;
-      currentY += (mouseY - currentY) * 0.06;
-
-      document.documentElement.style.setProperty("--mx", `${currentX}%`);
-      document.documentElement.style.setProperty("--my", `${currentY}%`);
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  const handleSubmit = async () => {
-    if (!email || !email.includes("@")) {
-      setStatus("error");
-      return;
-    }
-
-    setStatus("loading");
-
-    try {
-      const res = await fetch("/api/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setStatus("success");
-        setEmail("");
-        setTimeout(() => setStatus("idle"), 3000);
-      } else {
-        setStatus("error");
-      }
-    } catch {
-      setStatus("error");
-    }
-  };
-
+export default function RootPage() {
   return (
-    <main className="relative min-h-screen flex items-center justify-center px-6 text-white overflow-hidden">
+    <main className="flex-1 flex flex-col items-center justify-center relative min-h-screen bg-[#0A0A0A] selection:bg-[#00F2FF] selection:text-black overflow-hidden">
+      {/* Sinematik Arkaplan (Generate Edilen Arvian Çekirdeği Konsepti) */}
+      <motion.div
+        initial={{ opacity: 0, scale: 1.05 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 4, ease: "easeOut" }}
+        className="absolute inset-0 z-0 pointer-events-none"
+      >
+        <Image
+          src="/backgrounds/bg_root.png"
+          alt="Arvian Core Interface"
+          fill
+          priority
+          className="object-cover opacity-60"
+        />
+        {/* Karartma Gradyanları */}
+        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-[#0A0A0A] to-transparent" />
+        <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#0A0A0A] to-transparent" />
+        <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-[#0A0A0A] to-transparent" />
+      </motion.div>
 
-      {/* 🔥 LIGHT SYSTEM */}
-      <div className="arvian-light" />
-      <div className="arvian-depth" />
-      <div className="arvian-noise" />
-
-      <div className="text-center max-w-3xl space-y-10 relative z-10">
-
-        <p className="text-xs tracking-[0.5em] text-white/40 uppercase">
-          Arvian Studio
-        </p>
-
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-light leading-[1.05] tracking-[-0.03em]">
-          Personal scenes,
-          <br />
-          <span className="italic text-white/80">rebuilt with precision.</span>
-        </h1>
-
-        <p className="text-white/50 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
-          A controlled system that integrates real human presence into cinematic environments.
-          Built for memory, identity, and atmosphere.
-        </p>
-
-        <p className="text-white/30 text-xs tracking-[0.4em] uppercase">
-          Coming Soon
-        </p>
-
-        <div className="flex flex-col items-center gap-3 mt-4">
-          <div className="flex items-center justify-center gap-3">
-
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              className="bg-white/5 border border-white/10 px-6 py-3 rounded-full text-sm outline-none w-[240px] md:w-[300px] backdrop-blur-md transition focus:border-white/20"
-            />
-
-            <button
-              onClick={handleSubmit}
-              disabled={status === "loading"}
-              className="px-6 py-3 rounded-full bg-white text-black text-sm font-medium transition hover:opacity-90 active:scale-[0.97]"
-            >
-              {status === "loading"
-                ? "Sending..."
-                : status === "success"
-                ? "✓ Added"
-                : "Notify Me"}
-            </button>
-
+      <div className="z-10 flex flex-col items-center justify-center h-full max-w-2xl px-6 text-center">
+        
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 2, delay: 1, ease: "easeOut" }}
+          className="space-y-6 flex flex-col items-center"
+        >
+          <div className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center shadow-[inset_0_0_20px_rgba(0,242,255,0.1)] relative">
+            <div className="absolute inset-0 rounded-full animate-[spin_8s_linear_infinite] border border-transparent border-t-[#00F2FF]/40 border-b-[#00F2FF]/40" />
+            <div className="w-2 h-2 rounded-full bg-[#00F2FF] animate-pulse" />
           </div>
 
-          <div className="h-4 text-xs text-white/40">
-            {status === "success" && "You’re on the list."}
-            {status === "error" && "Invalid email or error."}
+          <div className="space-y-4">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-cinzel tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-300 to-white opacity-95 text-shadow-xl font-medium">
+              ARVIAN
+            </h1>
+            <p className="font-sans text-[#00F2FF]/80 uppercase tracking-[0.4em] text-[10px] md:text-xs font-semibold animate-pulse">
+              Core Mühürlendi
+            </p>
           </div>
-        </div>
 
+          <div className="w-px h-24 bg-gradient-to-b from-white/20 via-[#00F2FF]/30 to-transparent my-8" />
+
+          <p className="font-sans text-lg md:text-xl font-light tracking-widest text-zinc-400 drop-shadow-md">
+            Gerçeklik Yeniden Dokunuyor...
+          </p>
+        </motion.div>
       </div>
+
+      {/* Gizli ve Zarif Giriş Tetiği */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 2, delay: 3 }}
+        className="absolute bottom-10 z-20"
+      >
+        <Link 
+          href="/production/login"
+          className="group flex flex-col items-center gap-2 opacity-30 hover:opacity-100 transition-all duration-500"
+        >
+          <div className="w-6 h-10 rounded-full border border-zinc-500/50 flex justify-center p-1 group-hover:border-[#00F2FF]/50 group-hover:shadow-[0_0_15px_rgba(0,242,255,0.2)]">
+            <div className="w-1 h-2 rounded-full bg-zinc-400 group-hover:bg-[#00F2FF] group-hover:animate-bounce" />
+          </div>
+          <span className="font-sans text-[8px] uppercase tracking-[0.3em] text-zinc-500 group-hover:text-[#00F2FF]/80">
+            Motoru Tetikle
+          </span>
+        </Link>
+      </motion.div>
     </main>
   );
 }
