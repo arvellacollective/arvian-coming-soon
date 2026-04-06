@@ -103,10 +103,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const hfToken = process.env.HUGGINGFACE_TOKEN;
+    const hfToken = process.env.HF_TOKEN;
     if (!hfToken) {
       return NextResponse.json(
-        { error: "HUGGINGFACE_TOKEN tanimli degil." },
+        { error: "HF_TOKEN tanimli degil." },
         { status: 500 }
       );
     }
